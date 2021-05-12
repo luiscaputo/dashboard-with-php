@@ -4,15 +4,16 @@ require_once '../core/conection.php';
   if(isset($_POST['cadastrar'])){
     
     $nome = filter_input(INPUT_POST, 'nomeCampeonato');
-    $s = $pdo->prepare("SELECT * FROM desportos where Desporto = '$nome'");
+    $pais = filter_input(INPUT_POST, 'pais');
+    $s = $pdo->prepare("SELECT * FROM equipas where Equipa = '$nome'");
     $s->execute();
 
     if($s->rowCount() > 0){
-      echo "<script>alert('Esse Desporto já está cadastrado!')</script>";
+      echo "<script>alert('Essa Equipa já está cadastrada!')</script>";
     }
       else
         {
-          $guarda = $pdo->prepare("INSERT INTO desportos(Desporto) VALUES('$nome')");
+          $guarda = $pdo->prepare("INSERT INTO equipas() VALUES('$nome')");
           $guarda->execute();
           if($guarda->rowCount() > 0){
             echo "<script>alert('Desporto Cadastrado!')</script>";
@@ -295,7 +296,20 @@ require_once '../core/conection.php';
       <div class="modal-body">
            <form action="" method="post" class="form">
                 <input type="text" class="form-control" style="color: black;" placeholder="Nome do Desporto" name="nomeCampeonato"><br>
-                   <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
+                <select name="pais" id="">
+                            <option value="" desable>Selecione o Pais dessa Equipe</option>
+                            <?php
+                               require_once '../core/conection.php';
+                               global $pdo;
+                               $sql = $pdo->prepare("SELECT * FROM pais");
+                               $sql->execute();
+                               while($dat = $sql->fetch(PDO::FETCH_ASSOC))
+                               {
+                                 echo '<option value="'.$dat['idPais'].'">'.$dat['pais'].'</option>';
+                              }
+                            ?> 
+                          </select><br>                   
+                          <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
              </form>
       </div>
     </div>
