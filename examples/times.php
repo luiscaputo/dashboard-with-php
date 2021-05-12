@@ -237,14 +237,15 @@ require_once '../core/conection.php';
                         require_once '../core/conection.php';
                         global $pdo;
                         //$a->EveryProfiles();
-                        $sql = $pdo->prepare("SELECT * FROM desportos");
+                        $sql = $pdo->prepare("SELECT * FROM equipas");
                         $sql->execute();
                         echo '
                             <table id="example" class="table table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                 <th scope="col" class="sort" data-sort="">ID</th>
-                                <th scope="col" class="sort" data-sort="">Desporto</th>
+                                <th scope="col" class="sort" data-sort="">Equipas</th>
+                                <th scope="col" class="sort" data-sort="">País</th>
                                 <th scope="col">Data Criação</th>
                                 </tr>
                             </thead>
@@ -254,9 +255,18 @@ require_once '../core/conection.php';
                         { 
                           echo '
                           <tr scope="row align-items-justify">
-                          <td>'. $campeonato['idDesporto'].'</td>
-                          <td>'. $campeonato['Desporto'].'</td>
-                          <td>'.$campeonato['dataCriacao'].'</td>
+                          <td>'. $campeonato['idEquipa'].'</td>
+                          <td>'. $campeonato['Equipa'].'</td>
+                          <td>'. 
+                            $id = $campeonato['PaisId'];
+                            $badJo = $pdo->prepare("SELECT * FROM equipas WHERE idEquipa = '$id'");
+                            $badJo->execute();
+                            $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
+                            $nn = $badJoArray['Equipa'];
+                            echo ' '.$nn;
+                            
+                          echo ' </td>';
+                          echo '<td>'.$campeonato['dataCriacao'].'</td>
                           ';                          
                         }
                       echo '
@@ -270,8 +280,8 @@ require_once '../core/conection.php';
                 </div>
               </div>
               <div class="container text-center">
-                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Novo Desporto</button>
-                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Desporto</button>
+                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Nova Equipa</button>
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Equipa</button>
                   </div>
             </div>
           </div>
@@ -280,7 +290,7 @@ require_once '../core/conection.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Novo Desporto</h5>
+        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Nova Equipa</h5>
       </div>
       <div class="modal-body">
            <form action="" method="post" class="form">
@@ -296,7 +306,7 @@ require_once '../core/conection.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Novo Desporto</h5>
+        <h5 class="modal-title text-center" id="exampleModalLabel">Eliminar Equipa</h5>
       </div>
       <div class="modal-body">
               <form action="" method="post" class="">

@@ -296,7 +296,7 @@ require_once '../core/conection.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Novo Desporto</h5>
+        <h5 class="modal-title text-center" id="exampleModalLabel">Eliminar Desporto</h5>
       </div>
       <div class="modal-body">
               <form action="" method="post" class="">
