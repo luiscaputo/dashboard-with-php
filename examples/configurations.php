@@ -1,69 +1,39 @@
 <?php
 require_once '../core/conection.php';
   global $pdo;
-  if(isset($_POST['cadastrar'])){
-    if(
-      isset($_POST['nome']) && !empty($_POST['nome']) &&
-      isset($_POST['apelido']) && !empty($_POST['apelido']) &&
-      isset($_POST['nomeUsuario']) && !empty($_POST['nomeUsuario']) &&
-      isset($_POST['email']) && !empty($_POST['email']) &&
-      isset($_POST['password']) && !empty($_POST['password']) &&
-      isset($_POST[' ']) && !empty($_POST['TxtData']) &&
-      isset($_POST['ConfirmePass']) && !empty($_POST['ConfirmePass']) 
-   ){
-      
+  if(isset($_POST['cadastrar']))
+  {
       $data =date('Y');
       $Servicos=['Gmail','Outlook','Icloud'];
       $count=0;
 
-       $FirstName = $_POST['TxtNome'];
-       $FullName = $_POST['TxtApelido'];
-       $User = $_POST['TxtUser'];
-       $Email = $_POST['TxtEmail'];
-       $Password = $_POST['txtPass'];
-       $Data = $_POST['TxtData'];
-       $tipoPessoaId = $_POST['tipoPessoa'];;
-       $PassConfirme =$_POST['ConfirmePass'];
-
-       $dataNascimento=explode("-",$Data);
-       $RES=$data - $dataNascimento[0];
-       for($i = 0;$i<count($Servicos);$i++){
-          if(strstr($Email,$Servicos[$i])){
-              $count++;
-          }
-       }
-
-           //Cadastro de pessoas
-
-   $sqli = $PDO->prepare("SELECT * FROM pessoa where NomeUtilizador='$User'");
-   $sqli->execute();
-       if($sqli->rowCount() > 0){
-           $arrdata[]="ErroUserNO";
-       }elseif($Password !=  $PassConfirme){
-           $arrdata[]="ErroConfirmPass";
-       }elseif($RES < 18){
-          $arrdata[]="Menor de 18";
-       }elseif(filter_var($Email,FILTER_VALIDATE_EMAIL) != TRUE && $count>0){
-          $arrdata[]="ErroEmail";
-       } else{
+      $FirstName = $_POST['nome'];
+      $FullName = $_POST['apelido'];
+      $User = $_POST['nomeUtilizador'];
+      $Email = $_POST['email'];
+      $Password = $_POST['password'];
+      $Data = $_POST['dataNascimento'];
+      $tipoPessoaId = $_POST['tipoPessoa'];;
+      $PassConfirme =$_POST['ConfirmePass'];
           
-               $Sql = $PDO->prepare('INSERT INTO pessoa(Nome,Apelido,EMAIL,DataNascimento,NomeUtilizador,PalavraPasse,TipoPessoaId) VALUES(:FirstName,:FullName,:Email,:Data,:User,:Password,:tipoPessoa)');
-   
-               $Sql->bindParam(':FirstName',$FirstName);
-               $Sql->bindParam(':FullName',$FullName);
-               $Sql->bindParam(':Email',$Email);
-               $Sql->bindParam(':Data',$Data);
-               $Sql->bindParam(':User',$User);
-               $Sql->bindParam(':Password',$Password);
-               $Sql->bindParam(':tipoPessoa',$tipoPessoaId);
-  
-           if($Sql->execute()){
-               $arrdata[]="Cadastrado";
-           }
-          
-       }
-  }
-
+      if($Password != $PassConfirme)
+      {
+        echo "<script>alert('As Palavras passes não coincidem!')</script>";
+      }else
+        {
+          $Sql = $pdo->prepare('INSERT INTO pessoa(Nome,Apelido,EMAIL,DataNascimento,NomeUtilizador,PalavraPasse,TipoPessoaId) VALUES(:FirstName,:FullName,:Email,:Data,:User, :Password,:tipoPessoa)');
+          $Sql->bindParam(':FirstName',$FirstName);
+          $Sql->bindParam(':FullName',$FullName);
+          $Sql->bindParam(':Email',$Email);
+          $Sql->bindParam(':Data',$Data);
+          $Sql->bindParam(':User',$User);
+          $Sql->bindParam(':Password',md5($Password));
+          $Sql->bindParam(':tipoPessoa',$tipoPessoaId);
+          $Sql->execute();
+      if($Sql->rowCount() > 0){
+          echo "<script>alert('Usuário Cadastrado!')</script>";
+      }
+        }
   }
   if(isset($_POST['apagar']))
   {
@@ -300,6 +270,7 @@ require_once '../core/conection.php';
                 <input type="date" class="form-control" style="color: black;" placeholder="Data de Nascimento" name="dataNascimento"><br>
                 <input type="text" class="form-control" style="color: black;" placeholder="Nome de Utilizador" name="nomeUtilizador"><br>
                 <input type="password" class="form-control" style="color: black;" placeholder="Password" name="password"><br>
+                <input type="password" class="form-control" style="color: black;" placeholder="Confirme sua Palavra passe" name="ConfirmePass"><br>
                 <select name="tipoPessoa" id="">
                             <option value="" desable>Selecione o Papel dessa Pessoa</option>
                             <?php
@@ -312,9 +283,9 @@ require_once '../core/conection.php';
                                  echo '<option style="color: black;" value="'.$dat['idTipoPessoa'].'">'.$dat['Pessoa'].'</option>';
                               }
                             ?> 
-                          </select><br>               
-                <input type="img" class="form-control" style="color: black;" placeholder="Imagem" name="image"><br>    
-                          <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
+                          </select><br><br>               
+                <input type="file" class="form-control" style="color: black;" placeholder="Imagem" name="image"><br>    
+                <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
              </form>
       </div>
     </div>
