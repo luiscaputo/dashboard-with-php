@@ -1,18 +1,54 @@
-<!--
-=========================================================
-* * Black Dashboard - v1.0.1
-=========================================================
+<?php
+require_once '../core/conection.php';
+  global $pdo;
+  if(isset($_POST['cadastrar'])){
+    
+    $nome = filter_input(INPUT_POST, 'nomeCampeonato');
+    $pais = filter_input(INPUT_POST, 'pais');
+    $s = $pdo->prepare("SELECT * FROM equipas where Equipa = '$nome'");
+    $s->execute();
 
-* Product Page: https://www.creative-tim.com/product/black-dashboard
-* Copyright 2019 Creative Tim (https://www.creative-tim.com)
+    if($s->rowCount() > 0){
+      echo "<script>alert('Essa Equipa já está cadastrada!')</script>";
+    }
+      else
+        {
+          $guarda = $pdo->prepare("INSERT INTO equipas(Equipa, PaisId) VALUES('$nome', '$pais')");
+          $guarda->execute();
+          if($guarda->rowCount() > 0){
+            echo "<script>alert('Equipa Cadastrada!')</script>";
+          }else
+          {
+            echo "<script>alert('Equipa Não Cadastrada!')</script>";
+          }
+      }
 
 
-* Coded by Creative Tim
+  }
+  if(isset($_POST['apagar']))
+  {
+    $id = filter_input(INPUT_POST, 'idCampeonato');
 
-=========================================================
+    $x = $pdo->prepare("SELECT * FROM equipas where idEquipa = '$id'");
+    $x->execute();
+    if($x->rowCount() > 0)
+    {
+      $elimina = $pdo->prepare("DELETE FROM equipas WHERE idEquipa = '$id'");
+      $elimina->execute();
+      if($elimina->rowCount() > 0)
+      {
+        echo "<script>alert('Equipa Eliminada!')</script>";
+      }else
+      {
+        echo "<script>alert('Equipa não Eliminada!')</script>";
+      }
+    }else
+    {
+      echo "<script>alert('Essa Equipa não existe!')</script>";
+    }
 
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
--->
+  }
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -96,7 +132,7 @@
           <li>
             <a href="./configurations.php">
               <i class="tim-icons icon-world"></i>
-              <p>configurações</p>
+              <p>Configurações</p>
             </a>
           </li>
         </ul>
@@ -177,15 +213,15 @@
             </div>
           </div>
         </div>
-      </div>      </nav>
+      </div>
       <div class="modal modal-search fade" id="searchModal" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="Pesquisar">
+              <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
-              </button>
+              </button> 
             </div>
           </div>
         </div>
@@ -193,94 +229,131 @@
       <!-- End Navbar -->
       <div class="content">
         <div class="row">
-          <div class="col-md-8 ml-auto mr-auto">
-            <div class="card card-upgrade">
-              <div class="card-header text-center">
-                <h4 class="card-title">Black Dashboard PRO</h3>
-                  <p class="card-category">Are you looking for more components? Please check our Premium Version of Black Dashboard PRO.</p>
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header">
+                <h4 class="title">Todos as Equipes</h4>
+                <p class="category">Liste, Edite e crie um novo <a href="#">Equipes</a></p>
+                <?php
+                        require_once '../core/conection.php';
+                        global $pdo;
+                        //$a->EveryProfiles();
+                        $sql = $pdo->prepare("SELECT * FROM equipas");
+                        $sql->execute();
+                        echo '
+                            <table id="example" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                <th scope="col" class="sort" data-sort="">ID</th>
+                                <th scope="col" class="sort" data-sort="">Equipas</th>
+                                <th scope="col" class="sort" data-sort="">País</th>
+                                <th scope="col">Data Criação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ';
+                        while($campeonato = $sql->fetch(PDO::FETCH_ASSOC))
+                        { 
+                          echo '
+                          <tr scope="row align-items-justify">
+                          <td>'. $campeonato['idEquipa'].'</td>
+                          <td>'. $campeonato['Equipa'].'</td>
+                          <td>'. 
+                            $id = $campeonato['PaisId'];
+                            $badJo = $pdo->prepare("SELECT * FROM pais WHERE idPais = '$id'");
+                            $badJo->execute();
+                            $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
+                            $nn = $badJoArray['Pais'];
+                            echo ' '.$nn;
+                            
+                          echo ' </td>';
+                          echo '<td>'.$campeonato['dataCriacao'].'</td>
+                          ';                          
+                        }
+                      echo '
+                      </tbody>
+                      </table>';
+                    ?><br><br>
               </div>
-              <div class="card-body">
-                <div class="table-responsive table-upgrade">
-                  <table class="table">
-                    <thead>
-                      <th></th>
-                      <th class="text-center">Free</th>
-                      <th class="text-center">PRO</th>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Components</td>
-                        <td class="text-center">16</td>
-                        <td class="text-center">160</td>
-                      </tr>
-                      <tr>
-                        <td>Plugins</td>
-                        <td class="text-center">4</td>
-                        <td class="text-center">14</td>
-                      </tr>
-                      <tr>
-                        <td>Example Pages</td>
-                        <td class="text-center">7</td>
-                        <td class="text-center">28</td>
-                      </tr>
-                      <tr>
-                        <td>Login, Register, Pricing, Lock Pages</td>
-                        <td class="text-center"><i class="tim-icons icon-simple-remove text-danger"></i></td>
-                        <td class="text-center"><i class="tim-icons icon-check-2 text-success"></i></td>
-                      </tr>
-                      <tr>
-                        <td>DataTables, VectorMap, SweetAlert, Wizard, jQueryValidation, FullCalendar etc...</td>
-                        <td class="text-center"><i class="tim-icons icon-simple-remove text-danger"></i></td>
-                        <td class="text-center"><i class="tim-icons icon-check-2 text-success"></i></td>
-                      </tr>
-                      <tr>
-                        <td>Mini Sidebar</td>
-                        <td class="text-center"><i class="tim-icons icon-simple-remove text-danger"></i></td>
-                        <td class="text-center"><i class="tim-icons icon-check-2 text-success"></i></td>
-                      </tr>
-                      <tr>
-                        <td>Premium Support</td>
-                        <td class="text-center"><i class="tim-icons icon-simple-remove text-danger"></i></td>
-                        <td class="text-center"><i class="tim-icons icon-check-2 text-success"></i></td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td class="text-center">Free</td>
-                        <td class="text-center">Just $49</td>
-                      </tr>
-                      <tr>
-                        <td class="text-center"></td>
-                        <td class="text-center">
-                          <a href="#" class="btn btn-round btn-default disabled">Current Version</a>
-                        </td>
-                        <td class="text-center">
-                          <a target="_blank" href="https://themes.getbootstrap.com/product/black-dashboard-pro-premium-bootstrap-4-admin/" class="btn btn-round btn-primary">Upgrade to PRO</a>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div class="card-body all-icons">
+                <div class="row">
+                  </div>
                 </div>
               </div>
+              <div class="container text-center">
+                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Nova Equipa</button>
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Equipa</button>
+                  </div>
             </div>
           </div>
         </div>
+<div class="modal fade" id="trazer" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Nova Equipa</h5>
       </div>
+      <div class="modal-body">
+           <form action="" method="post" class="form">
+                <input type="text" class="form-control" style="color: black;" placeholder="Nome do Desporto" name="nomeCampeonato"><br>
+                <select name="pais" id="">
+                            <option value="" desable>Selecione o Pais dessa Equipe</option>
+                            <?php
+                               require_once '../core/conection.php';
+                               global $pdo;
+                               $sql = $pdo->prepare("SELECT * FROM pais");
+                               $sql->execute();
+                               while($dat = $sql->fetch(PDO::FETCH_ASSOC))
+                               {
+                                 echo '<option style="color: black;" value="'.$dat['idPais'].'">'.$dat['pais'].'</option>';
+                              }
+                            ?> 
+                          </select><br>                   
+                          <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
+             </form>
+      </div>
+    </div>
+  </div>
+</div>
+       
+<div class="modal fade" id="apagar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalLabel">Eliminar Equipa</h5>
+      </div>
+      <div class="modal-body">
+              <form action="" method="post" class="">
+                  <input type="text" name="idCampeonato" style="color: black;" placeholder="Coloque o Id do Desporto a eliminar" class="form-control"> <br>
+                  <button name="apagar" type="submit" class="form-control btn btn-success">Eliminar</button><br>
+              </form>
+      </div>
+    </div>
+  </div>
+</div>
+              <!-- <div class="modal fade" id="apagar" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                          <form action="" method="post" class="">
+                              <input type="text" name="idCampeonato" placeholder="Coloque o Id do Desporto a eliminar" class=""> <br>
+                              <button name="apagar" type="submit" class="">Eliminar</button><br>
+                          </form>
+                    </div>
+                  </div>
+                </div>
+              </div> -->
       <footer class="footer">
         <div class="container-fluid">
           <ul class="nav">
             <li class="nav-item">
               <a href="javascript:void(0)" class="nav-link">
-                Creative Tim
+                Bet - Sport
               </a>
             </li>
             <li class="nav-item">
               <a href="javascript:void(0)" class="nav-link">
-                About Us
-              </a>
-            </li>
-            <li class="nav-item">
-              <a href="javascript:void(0)" class="nav-link">
-                Blog
+                Sobre Nós
               </a>
             </li>
           </ul>
@@ -288,8 +361,8 @@
             ©
             <script>
               document.write(new Date().getFullYear())
-            </script>2018 made with <i class="tim-icons icon-heart-2"></i> by
-            <a href="javascript:void(0)" target="_blank">Creative Tim</a> for a better web.
+            </script>2021 BET - SPORT <i class="tim-icons icon-heart-2"></i> bY
+            <a href="javascript:void(0)" target="_blank">CODERCLEAN</a>
           </div>
         </div>
       </footer>
@@ -301,7 +374,7 @@
         <i class="fa fa-cog fa-2x"> </i>
       </a>
       <ul class="dropdown-menu">
-        <li class="header-title"> Sidebar Background</li>
+        <li class="header-title"> Mudar color Lateral</li>
         <li class="adjustments-line">
           <a href="javascript:void(0)" class="switch-trigger background-color">
             <div class="badge-colors text-center">
@@ -318,20 +391,8 @@
           <span class="badge dark-badge ml-2"></span>
           <span class="color-label">DARK MODE</span>
         </li>
-        <li class="button-container">
-          <a href="https://www.creative-tim.com/product/black-dashboard" target="_blank" class="btn btn-primary btn-block btn-round">Download Now</a>
-          <a href="https://demos.creative-tim.com/black-dashboard/docs/1.0/getting-started/introduction.html" target="_blank" class="btn btn-default btn-block btn-round">
-            Documentation
-          </a>
-        </li>
-        <li class="header-title">Thank you for 95 shares!</li>
-        <li class="button-container text-center">
-          <button id="twitter" class="btn btn-round btn-info"><i class="fab fa-twitter"></i> &middot; 45</button>
-          <button id="facebook" class="btn btn-round btn-info"><i class="fab fa-facebook-f"></i> &middot; 50</button>
-          <br>
-          <br>
-          <a class="github-button" href="https://github.com/creativetimofficial/black-dashboard" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star ntkme/github-buttons on GitHub">Star</a>
-        </li>
+       
+        
       </ul>
     </div>
   </div>

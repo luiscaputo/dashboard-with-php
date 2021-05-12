@@ -13,13 +13,13 @@ require_once '../core/conection.php';
     }
       else
         {
-          $guarda = $pdo->prepare("INSERT INTO equipas() VALUES('$nome')");
+          $guarda = $pdo->prepare("INSERT INTO equipas(Equipa, PaisId) VALUES('$nome', '$pais')");
           $guarda->execute();
           if($guarda->rowCount() > 0){
-            echo "<script>alert('Desporto Cadastrado!')</script>";
+            echo "<script>alert('Equipa Cadastrada!')</script>";
           }else
           {
-            echo "<script>alert('Desporto Não Cadastrado!')</script>";
+            echo "<script>alert('Equipa Não Cadastrada!')</script>";
           }
       }
 
@@ -29,22 +29,22 @@ require_once '../core/conection.php';
   {
     $id = filter_input(INPUT_POST, 'idCampeonato');
 
-    $x = $pdo->prepare("SELECT * FROM desportos where idDesporto = '$id'");
+    $x = $pdo->prepare("SELECT * FROM equipas where idEquipa = '$id'");
     $x->execute();
     if($x->rowCount() > 0)
     {
-      $elimina = $pdo->prepare("DELETE FROM desportos WHERE idDesporto = '$id'");
+      $elimina = $pdo->prepare("DELETE FROM equipas WHERE idEquipa = '$id'");
       $elimina->execute();
       if($elimina->rowCount() > 0)
       {
-        echo "<script>alert('Desporto Eliminado!')</script>";
+        echo "<script>alert('Equipa Eliminada!')</script>";
       }else
       {
-        echo "<script>alert('Desporto não Eliminado!')</script>";
+        echo "<script>alert('Equipa não Eliminada!')</script>";
       }
     }else
     {
-      echo "<script>alert('Esse Desporto não existe!')</script>";
+      echo "<script>alert('Essa Equipa não existe!')</script>";
     }
 
   }
@@ -260,10 +260,10 @@ require_once '../core/conection.php';
                           <td>'. $campeonato['Equipa'].'</td>
                           <td>'. 
                             $id = $campeonato['PaisId'];
-                            $badJo = $pdo->prepare("SELECT * FROM equipas WHERE idEquipa = '$id'");
+                            $badJo = $pdo->prepare("SELECT * FROM pais WHERE idPais = '$id'");
                             $badJo->execute();
                             $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
-                            $nn = $badJoArray['Equipa'];
+                            $nn = $badJoArray['Pais'];
                             echo ' '.$nn;
                             
                           echo ' </td>';
@@ -305,7 +305,7 @@ require_once '../core/conection.php';
                                $sql->execute();
                                while($dat = $sql->fetch(PDO::FETCH_ASSOC))
                                {
-                                 echo '<option value="'.$dat['idPais'].'">'.$dat['pais'].'</option>';
+                                 echo '<option style="color: black;" value="'.$dat['idPais'].'">'.$dat['pais'].'</option>';
                               }
                             ?> 
                           </select><br>                   
