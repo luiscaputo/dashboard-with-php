@@ -11,50 +11,63 @@ require_once '../core/conection.php';
       $FullName = $_POST['apelido'];
       $User = $_POST['nomeUtilizador'];
       $Email = $_POST['email'];
-      $Password = $_POST['password'];
+      $Password = md5($_POST['password']);
       $Data = $_POST['dataNascimento'];
       $tipoPessoaId = $_POST['tipoPessoa'];;
-      $PassConfirme =$_POST['ConfirmePass'];
-          
-      if($Password != $PassConfirme)
+      $PassConfirme =md5($_POST['ConfirmePass']);
+       
+      $e = $pdo->prepare("SELECT * FROM pessoa WHERE NomeUtilizador ='$User' and TipoPessoaId = '$tipoPessoaId'");
+      $e->execute();
+      if($e->rowCount() > 0)
       {
-        echo "<script>alert('As Palavras passes não coincidem!')</script>";
-      }else
-        {
-          $Sql = $pdo->prepare('INSERT INTO pessoa(Nome,Apelido,EMAIL,DataNascimento,NomeUtilizador,PalavraPasse,TipoPessoaId) VALUES(:FirstName,:FullName,:Email,:Data,:User, :Password,:tipoPessoa)');
-          $Sql->bindParam(':FirstName',$FirstName);
-          $Sql->bindParam(':FullName',$FullName);
-          $Sql->bindParam(':Email',$Email);
-          $Sql->bindParam(':Data',$Data);
-          $Sql->bindParam(':User',$User);
-          $Sql->bindParam(':Password',md5($Password));
-          $Sql->bindParam(':tipoPessoa',$tipoPessoaId);
-          $Sql->execute();
-      if($Sql->rowCount() > 0){
-          echo "<script>alert('Usuário Cadastrado!')</script>";
+        echo "<script>alert('Esse usuário já existe e com o mesmo papel!')</script>";
       }
+      else
+        if($Password != $PassConfirme)
+        {
+          echo "<script>alert('As Palavras passes não coincidem!')</script>";
         }
+        else
+          {
+            $Sql = $pdo->prepare('INSERT INTO pessoa(Nome,Apelido,EMAIL,DataNascimento,NomeUtilizador,PalavraPasse,TipoPessoaId) VALUES(:FirstName,:FullName,:Email,:Data,:User, :Password,:tipoPessoa)');
+            $Sql->bindParam(':FirstName',$FirstName);
+            $Sql->bindParam(':FullName',$FullName);
+            $Sql->bindParam(':Email',$Email);
+            $Sql->bindParam(':Data',$Data);
+            $Sql->bindParam(':User',$User);
+            $Sql->bindParam(':Password',$Password);
+            $Sql->bindParam(':tipoPessoa',$tipoPessoaId);
+            $Sql->execute();
+            if($Sql->rowCount() > 0)
+            {
+                echo "<script>alert('Usuário Cadastrado!')</script>";
+            }
+            else
+              {
+                echo "<script>alert('Usuário não Cadastrado!')</script>";
+              }
+          }
   }
   if(isset($_POST['apagar']))
   {
     $id = filter_input(INPUT_POST, 'idCampeonato');
 
-    $x = $pdo->prepare("SELECT * FROM equipas where idEquipa = '$id'");
+    $x = $pdo->prepare("SELECT * FROM pessoa where idPessoa = '$id'");
     $x->execute();
     if($x->rowCount() > 0)
     {
-      $elimina = $pdo->prepare("DELETE FROM equipas WHERE idEquipa = '$id'");
+      $elimina = $pdo->prepare("DELETE FROM pessoa WHERE idPessoa = '$id'");
       $elimina->execute();
       if($elimina->rowCount() > 0)
       {
-        echo "<script>alert('Equipa Eliminada!')</script>";
+        echo "<script>alert('Usuário Eliminado!')</script>";
       }else
       {
-        echo "<script>alert('Equipa não Eliminada!')</script>";
+        echo "<script>alert('Usuário não Eliminado!')</script>";
       }
     }else
     {
-      echo "<script>alert('Essa Equipa não existe!')</script>";
+      echo "<script>alert('Esse Usuário não existe!')</script>";
     }
 
   }
@@ -241,8 +254,51 @@ require_once '../core/conection.php';
         <div class="row">
           <div class="col-md-12">
             <div class="card">
-
-                    ?><br><br>
+              <?php
+                require_once '../core/conection.php';
+                        global $pdo;
+                        //$a->EveryProfiles();
+                        $sql = $pdo->prepare("SELECT * FROM pessoa WHERE TipoPessoaId = '9' or TipoPessoaId = '11'");
+                        $sql->execute();
+                        echo '
+                            <table id="example" class="table table-striped" style="width:100%">
+                            <thead>
+                                <tr>
+                                <th scope="col" class="sort" data-sort="">ID</th>
+                                <th scope="col" class="sort" data-sort="">Nome de Utilizador</th>
+                                <th scope="col" class="sort" data-sort="">Email</th>
+                                <th scope="col" class="sort" data-sort="">Nif</th>
+                                <th scope="col" class="sort" data-sort="">Papel</th>
+                                <th scope="col">Data Criação</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            ';
+                        while($campeonato = $sql->fetch(PDO::FETCH_ASSOC))
+                        { 
+                          echo '
+                          <tr scope="row align-items-justify">
+                          <td>'. $campeonato['IdPessoa'].'</td>
+                          <td>'. $campeonato['NomeUtilizador'].'</td>
+                          <td>'. $c = $campeonato['EMAIL'].'</td>
+                          <td>'. $campeonato['NIF'].'</td>
+                          <td>'. 
+                            $idEstado = $campeonato['TipoPessoaId'];
+                            $badJo = $pdo->prepare("SELECT * FROM tipopessoa WHERE idTipoPessoa = '$idEstado'");
+                            $badJo->execute();
+                            $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
+                            $nn = $badJoArray['Pessoa'];
+                            echo ' '.$nn;
+                            
+                          echo ' </td>';
+                          echo '<td>'.$campeonato['DataCriacao'].'</td>
+                          ';                          
+                        }
+                      echo '
+                      </tbody>
+                      </table>';
+                    ?>
+                    <br><br>
               </div>
               <div class="card-body all-icons">
                 <div class="row">
@@ -296,11 +352,11 @@ require_once '../core/conection.php';
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title text-center" id="exampleModalLabel">Eliminar Equipa</h5>
+        <h5 class="modal-title text-center" id="exampleModalLabel">Eliminar Usuário</h5>
       </div>
       <div class="modal-body">
               <form action="" method="post" class="">
-                  <input type="text" name="idCampeonato" style="color: black;" placeholder="Coloque o Id do Desporto a eliminar" class="form-control"> <br>
+                  <input type="text" name="idCampeonato" style="color: black;" placeholder="Coloque o Id do Usuário a eliminar" class="form-control"> <br>
                   <button name="apagar" type="submit" class="form-control btn btn-success">Eliminar</button><br>
               </form>
       </div>
