@@ -220,7 +220,7 @@ require_once '../core/conection.php';
               <input type="text" class="form-control" id="inlineFormInputGroup" placeholder="SEARCH">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <i class="tim-icons icon-simple-remove"></i>
-              </button>
+              </button> 
             </div>
           </div>
         </div>
