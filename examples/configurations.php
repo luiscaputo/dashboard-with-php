@@ -2,27 +2,67 @@
 require_once '../core/conection.php';
   global $pdo;
   if(isset($_POST['cadastrar'])){
-    
-    $nome = filter_input(INPUT_POST, 'nomeCampeonato');
-    $pais = filter_input(INPUT_POST, 'pais');
-    $s = $pdo->prepare("SELECT * FROM equipas where Equipa = '$nome'");
-    $s->execute();
+    if(
+      isset($_POST['nome']) && !empty($_POST['nome']) &&
+      isset($_POST['apelido']) && !empty($_POST['apelido']) &&
+      isset($_POST['nomeUsuario']) && !empty($_POST['nomeUsuario']) &&
+      isset($_POST['email']) && !empty($_POST['email']) &&
+      isset($_POST['password']) && !empty($_POST['password']) &&
+      isset($_POST[' ']) && !empty($_POST['TxtData']) &&
+      isset($_POST['ConfirmePass']) && !empty($_POST['ConfirmePass']) 
+   ){
+      
+      $data =date('Y');
+      $Servicos=['Gmail','Outlook','Icloud'];
+      $count=0;
 
-    if($s->rowCount() > 0){
-      echo "<script>alert('Essa Equipa já está cadastrada!')</script>";
-    }
-      else
-        {
-          $guarda = $pdo->prepare("INSERT INTO equipas(Equipa, PaisId) VALUES('$nome', '$pais')");
-          $guarda->execute();
-          if($guarda->rowCount() > 0){
-            echo "<script>alert('Equipa Cadastrada!')</script>";
-          }else
-          {
-            echo "<script>alert('Equipa Não Cadastrada!')</script>";
+       $FirstName = $_POST['TxtNome'];
+       $FullName = $_POST['TxtApelido'];
+       $User = $_POST['TxtUser'];
+       $Email = $_POST['TxtEmail'];
+       $Password = $_POST['txtPass'];
+       $Data = $_POST['TxtData'];
+       $tipoPessoaId = $_POST['tipoPessoa'];;
+       $PassConfirme =$_POST['ConfirmePass'];
+
+       $dataNascimento=explode("-",$Data);
+       $RES=$data - $dataNascimento[0];
+       for($i = 0;$i<count($Servicos);$i++){
+          if(strstr($Email,$Servicos[$i])){
+              $count++;
           }
-      }
+       }
 
+           //Cadastro de pessoas
+
+   $sqli = $PDO->prepare("SELECT * FROM pessoa where NomeUtilizador='$User'");
+   $sqli->execute();
+       if($sqli->rowCount() > 0){
+           $arrdata[]="ErroUserNO";
+       }elseif($Password !=  $PassConfirme){
+           $arrdata[]="ErroConfirmPass";
+       }elseif($RES < 18){
+          $arrdata[]="Menor de 18";
+       }elseif(filter_var($Email,FILTER_VALIDATE_EMAIL) != TRUE && $count>0){
+          $arrdata[]="ErroEmail";
+       } else{
+          
+               $Sql = $PDO->prepare('INSERT INTO pessoa(Nome,Apelido,EMAIL,DataNascimento,NomeUtilizador,PalavraPasse,TipoPessoaId) VALUES(:FirstName,:FullName,:Email,:Data,:User,:Password,:tipoPessoa)');
+   
+               $Sql->bindParam(':FirstName',$FirstName);
+               $Sql->bindParam(':FullName',$FullName);
+               $Sql->bindParam(':Email',$Email);
+               $Sql->bindParam(':Data',$Data);
+               $Sql->bindParam(':User',$User);
+               $Sql->bindParam(':Password',$Password);
+               $Sql->bindParam(':tipoPessoa',$tipoPessoaId);
+  
+           if($Sql->execute()){
+               $arrdata[]="Cadastrado";
+           }
+          
+       }
+  }
 
   }
   if(isset($_POST['apagar']))
@@ -58,7 +98,7 @@ require_once '../core/conection.php';
   <link rel="apple-touch-icon" sizes="76x76" href="../assets/img/apple-icon.png">
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <title>
-    Black Dashboard by Creative Tim
+      BET - SPORT 
   </title>
   <!--     Fonts and icons     -->
   <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,600,700,800" rel="stylesheet" />
@@ -231,48 +271,7 @@ require_once '../core/conection.php';
         <div class="row">
           <div class="col-md-12">
             <div class="card">
-              <div class="card-header">
-                <h4 class="title">Todos as Equipes</h4>
-                <p class="category">Liste, Edite e crie um novo <a href="#">Equipes</a></p>
-                <?php
-                        require_once '../core/conection.php';
-                        global $pdo;
-                        //$a->EveryProfiles();
-                        $sql = $pdo->prepare("SELECT * FROM equipas");
-                        $sql->execute();
-                        echo '
-                            <table id="example" class="table table-striped" style="width:100%">
-                            <thead>
-                                <tr>
-                                <th scope="col" class="sort" data-sort="">ID</th>
-                                <th scope="col" class="sort" data-sort="">Equipas</th>
-                                <th scope="col" class="sort" data-sort="">País</th>
-                                <th scope="col">Data Criação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            ';
-                        while($campeonato = $sql->fetch(PDO::FETCH_ASSOC))
-                        { 
-                          echo '
-                          <tr scope="row align-items-justify">
-                          <td>'. $campeonato['idEquipa'].'</td>
-                          <td>'. $campeonato['Equipa'].'</td>
-                          <td>'. 
-                            $id = $campeonato['PaisId'];
-                            $badJo = $pdo->prepare("SELECT * FROM pais WHERE idPais = '$id'");
-                            $badJo->execute();
-                            $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
-                            $nn = $badJoArray['Pais'];
-                            echo ' '.$nn;
-                            
-                          echo ' </td>';
-                          echo '<td>'.$campeonato['dataCriacao'].'</td>
-                          ';                          
-                        }
-                      echo '
-                      </tbody>
-                      </table>';
+
                     ?><br><br>
               </div>
               <div class="card-body all-icons">
@@ -281,8 +280,8 @@ require_once '../core/conection.php';
                 </div>
               </div>
               <div class="container text-center">
-                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Nova Equipa</button>
-                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Equipa</button>
+                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Novo Administrador/Gestor de Fichas</button>
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Administrador/Gestor de Fichas</button>
                   </div>
             </div>
           </div>
@@ -295,20 +294,26 @@ require_once '../core/conection.php';
       </div>
       <div class="modal-body">
            <form action="" method="post" class="form">
-                <input type="text" class="form-control" style="color: black;" placeholder="Nome do Desporto" name="nomeCampeonato"><br>
-                <select name="pais" id="">
-                            <option value="" desable>Selecione o Pais dessa Equipe</option>
+                <input type="text" class="form-control" style="color: black;" placeholder="Nome da Pessoa" name="nome"><br>
+                <input type="text" class="form-control" style="color: black;" placeholder="Apelido da Pessoa" name="apelido"><br>
+                <input type="email" class="form-control" style="color: black;" placeholder="Email" name="email"><br>
+                <input type="date" class="form-control" style="color: black;" placeholder="Data de Nascimento" name="dataNascimento"><br>
+                <input type="text" class="form-control" style="color: black;" placeholder="Nome de Utilizador" name="nomeUtilizador"><br>
+                <input type="password" class="form-control" style="color: black;" placeholder="Password" name="password"><br>
+                <select name="tipoPessoa" id="">
+                            <option value="" desable>Selecione o Papel dessa Pessoa</option>
                             <?php
                                require_once '../core/conection.php';
                                global $pdo;
-                               $sql = $pdo->prepare("SELECT * FROM pais");
+                               $sql = $pdo->prepare("SELECT * FROM tipopessoa");
                                $sql->execute();
                                while($dat = $sql->fetch(PDO::FETCH_ASSOC))
                                {
-                                 echo '<option style="color: black;" value="'.$dat['idPais'].'">'.$dat['pais'].'</option>';
+                                 echo '<option style="color: black;" value="'.$dat['idTipoPessoa'].'">'.$dat['Pessoa'].'</option>';
                               }
                             ?> 
-                          </select><br>                   
+                          </select><br>               
+                <input type="img" class="form-control" style="color: black;" placeholder="Imagem" name="image"><br>    
                           <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
              </form>
       </div>
