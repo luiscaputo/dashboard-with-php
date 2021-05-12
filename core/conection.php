@@ -3,7 +3,7 @@
 	$server 	= 	'localhost'	;
 	$userName 	= 	'root'		;
 	$password 	= 	''			;
-	$db_name 	= 	'casadeaposta'	;
+	$db_name 	= 	'casadeapostas'	;
     
     try {
         $pdo = new PDO("mysql:dbname=".$db_name."; host=".$server, $userName, $password);

@@ -4,51 +4,46 @@ require_once '../core/conection.php';
   if(isset($_POST['cadastrar'])){
     
     $nome = filter_input(INPUT_POST, 'nomeCampeonato');
-    $pais = filter_input(INPUT_POST, 'pais');
-    $s = $pdo->prepare("SELECT * FROM pais where Pais = '$pais'");
+    $s = $pdo->prepare("SELECT * FROM desportos where Desporto = '$nome'");
     $s->execute();
-    $ss = $s->fetch();
-    $id = $ss['idPais'];
 
-    $despo = filter_input(INPUT_POST, 'desporto');
-    $t = $pdo->prepare("SELECT * FROM desportos WHERE Desporto = '$despo'");
-    $t->execute();
-    $arrayD = $t->fetch();
-    $idD = $arrayD['idDesporto'];
-
-    $guarda = $pdo->prepare("INSERT INTO campeonatos(Campeonato, PaisId, DesportoId) VALUES('$nome', '$id', '$idD')");
-    // $guarda->bindValue(':n', $nome);
-    // $guarda->bindValue(':pais', $id);
-    // $guarda->bindValue(':despo', $despo);
-    $guarda->execute();
-    if($guarda->rowCount() > 0){
-      echo "<script>alert('Campeonato Cadastrado!')</script>";
-    }else
-    {
-      echo "<script>alert('Campeonato Não Cadastrado!')</script>";
+    if($s->rowCount() > 0){
+      echo "<script>alert('Esse Desporto já está cadastrado!')</script>";
     }
+      else
+        {
+          $guarda = $pdo->prepare("INSERT INTO desportos(Desporto) VALUES('$nome')");
+          $guarda->execute();
+          if($guarda->rowCount() > 0){
+            echo "<script>alert('Desporto Cadastrado!')</script>";
+          }else
+          {
+            echo "<script>alert('Desporto Não Cadastrado!')</script>";
+          }
+      }
+
 
   }
   if(isset($_POST['apagar']))
   {
     $id = filter_input(INPUT_POST, 'idCampeonato');
 
-    $x = $pdo->prepare("SELECT * FROM Campeonatos where idCampeonato = '$id'");
+    $x = $pdo->prepare("SELECT * FROM desportos where idDesporto = '$id'");
     $x->execute();
     if($x->rowCount() > 0)
     {
-      $elimina = $pdo->prepare("DELETE FROM campeonatos WHERE idCampeonato = '$id'");
+      $elimina = $pdo->prepare("DELETE FROM desportos WHERE idDesporto = '$id'");
       $elimina->execute();
       if($elimina->rowCount() > 0)
       {
-        echo "<script>alert('Campeonato Eliminado!')</script>";
+        echo "<script>alert('Desporto Eliminado!')</script>";
       }else
       {
-        echo "<script>alert('Campeonato não Eliminado!')</script>";
+        echo "<script>alert('Desporto não Eliminado!')</script>";
       }
     }else
     {
-      echo "<script>alert('Esse campeonato não existe!')</script>";
+      echo "<script>alert('Esse Desporto não existe!')</script>";
     }
 
   }
@@ -236,21 +231,19 @@ require_once '../core/conection.php';
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
-                <h4 class="title">Todos os Campeonatos</h4>
-                <p class="category">Liste, Edite e crie um novo <a href="#">Campeonato</a></p>
+                <h4 class="title">Todos os Desportos Disponíveis</h4>
+                <p class="category">Liste, Edite e crie um novo <a href="#">Desporto</a></p>
                 <?php
                         require_once '../core/conection.php';
                         global $pdo;
                         //$a->EveryProfiles();
-                        $sql = $pdo->prepare("SELECT * FROM campeonatos");
+                        $sql = $pdo->prepare("SELECT * FROM desportos");
                         $sql->execute();
                         echo '
                             <table id="example" class="table table-striped" style="width:100%">
                             <thead>
                                 <tr>
                                 <th scope="col" class="sort" data-sort="">ID</th>
-                                <th scope="col" class="sort" data-sort="">Campeonato</th>
-                                <th scope="col" class="sort" data-sort="">País</th>
                                 <th scope="col" class="sort" data-sort="">Desporto</th>
                                 <th scope="col">Data Criação</th>
                                 </tr>
@@ -261,10 +254,8 @@ require_once '../core/conection.php';
                         { 
                           echo '
                           <tr scope="row align-items-justify">
-                          <td>'. $campeonato['idCampeonato'].'</td>
-                          <td>'. $campeonato['Campeonato'].'</td>
-                          <td>'. $c = $campeonato['PaisId'].'</td>
-                          <td>'. $campeonato['DesportoId'].'</td>
+                          <td>'. $campeonato['idDesporto'].'</td>
+                          <td>'. $campeonato['Desporto'].'</td>
                           <td>'.$campeonato['dataCriacao'].'</td>
                           ';                          
                         }
@@ -279,66 +270,55 @@ require_once '../core/conection.php';
                 </div>
               </div>
               <div class="container text-center">
-                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Novo Campeonato</button>
-                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Campeonato</button>
+                      <button class="btn btn-success" data-toggle="modal" data-target="#trazer" type="button">Novo Desporto</button>
+                      <button class="btn btn-danger" data-toggle="modal" data-target="#apagar" type="button">Eliminar Desporto</button>
                   </div>
             </div>
           </div>
         </div>
-        <div class="modal modal-search fade text-center" id="trazer" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
-                <div class="modal-dialog text-center" text-center role="document">
-                  <div class="modal-content text-center">
-                    <div class="modal-header text-center">
-                        <h4>Cadastre Novo campeonato</h4>
-                        <form action="" method="post" class="form">
-                          <input type="text" class="form-control" placeholder="Nome do Campeonato" name="nomeCampeonato"><br>
-                           <select name="pais" id="">
-                            <option value="" desable>Selecione o País</option>
-                            <?php
-                               require_once '../core/conection.php';
-                               global $pdo;
-                               $s = $pdo->prepare("SELECT * FROM pais");
-                               $s->execute();
-                               while($array = $s->fetch(PDO::FETCH_ASSOC))
-                               {
-                                echo '<option value="'.$array['Pais'].'">'.$array['ais'].'</option>';
-
-                                //  echo '<option value="'.$array['pais'].'">'.$array['pais'].'</option>';
-                              }
-                            ?> 
-                          </select>
-                          <select name="desporto" id="">
-                            <option value="" desable>Selecione o Desporto</option>
-                            <?php
-                               require_once '../core/conection.php';
-                               global $pdo;
-                               $sql = $pdo->prepare("SELECT * FROM desportos");
-                               $sql->execute();
-                               while($dat = $sql->fetch(PDO::FETCH_ASSOC))
-                               {
-                                 echo '<option value="'.$dat['Desporto'].'">'.$dat['Desporto'].'</option>';
-                              }
-                            ?> 
-                          </select>
-                          <button class="btn btn-success" type="submit" name="cadastrar">Cadastrar</button>
-                        </form>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="modal modal-search fade" id="apagar" tabindex="-1" role="dialog" aria-labelledby="searchModal" aria-hidden="true">
+<div class="modal fade" id="trazer" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Novo Desporto</h5>
+      </div>
+      <div class="modal-body">
+           <form action="" method="post" class="form">
+                <input type="text" class="form-control" style="color: black;" placeholder="Nome do Desporto" name="nomeCampeonato"><br>
+                   <button class="btn btn-success form-control" type="submit" name="cadastrar">Cadastrar</button><br>
+             </form>
+      </div>
+    </div>
+  </div>
+</div>
+       
+<div class="modal fade" id="apagar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center" id="exampleModalLabel">Cadastre Novo Desporto</h5>
+      </div>
+      <div class="modal-body">
+              <form action="" method="post" class="">
+                  <input type="text" name="idCampeonato" style="color: black;" placeholder="Coloque o Id do Desporto a eliminar" class="form-control"> <br>
+                  <button name="apagar" type="submit" class="form-control btn btn-success">Eliminar</button><br>
+              </form>
+      </div>
+    </div>
+  </div>
+</div>
+              <!-- <div class="modal fade" id="apagar" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
                     <div class="modal-header">
-                          <form action="" method="post" class="form-control">
-                              <input type="text" name="idCampeonato" placeholder="Coloque o Id do Campeonato a eliminar" class="form-control"> <br>
-                              <button name="apagar" type="submit" class="form-control">Eliminar</button><br>
+                          <form action="" method="post" class="">
+                              <input type="text" name="idCampeonato" placeholder="Coloque o Id do Desporto a eliminar" class=""> <br>
+                              <button name="apagar" type="submit" class="">Eliminar</button><br>
                           </form>
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
       <footer class="footer">
         <div class="container-fluid">
           <ul class="nav">

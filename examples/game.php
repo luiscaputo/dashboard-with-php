@@ -409,9 +409,9 @@ require_once '../core/conection.php';
                           <td>'. $campeonato['Hora_da_Partida'].'</td>
                           <td>'. 
                           $idEstado = $campeonato['EstadoId'];
-                            $badJo = $pdo->prepare("SELECT * FROM Estado WHERE idEstado = '$idEstado'");
+                            $badJo = $pdo->prepare("SELECT * FROM estado WHERE idEstado = '$idEstado'");
                             $badJo->execute();
-                            $badJoArray = $badJo->fetch();
+                            $badJoArray = $badJo->fetch(PDO::FETCH_ASSOC);
                             $nn = $badJoArray['Estado'];
                             echo ' '.$nn;
                             
