@@ -10,16 +10,16 @@
 
 
 
-    equipa da casa 
-    equipa visitante
-    CodigoFicha
-    dataAposta
-    classificacaoCodigo
-    Codigo
-    valor
-    valorTotal
-    Probabilidade
-    ganhosPossiveis
+    // equipa da casa 
+    // equipa visitante
+    // CodigoFicha
+    // dataAposta
+    // classificacaoCodigo
+    // Codigo
+    // valor
+    // valorTotal
+    // Probabilidade
+    // ganhosPossiveis
   }
 ?>
 <!DOCTYPE html>
