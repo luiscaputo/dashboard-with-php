@@ -1,24 +1,5 @@
 <?php
-  global $pdo;
-  require_once '../core/conection.php';
-  if(isset($_POST['imprimir']))
-  {
-    $cod = filter_input(INPUT_POST, 'nome');
-    $getFicha = $pdo->prepare("SELECT * FROM fichas WHERE CodigoFicha = '$cod'");
-    $getFicha->execute();
-    
 
-    // equipa da casa 
-    // equipa visitante
-    // CodigoFicha
-    // dataAposta
-    // classificacaoCodigo
-    // Codigo
-    // valor
-    // valorTotal
-    // Probabilidade
-    // ganhosPossiveis
-  }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -190,7 +171,7 @@
                 </div>
               </div>
               <div class="container text-center">
-              <form action="" method="post">
+              <form action="pdf/pdf.php" method="post">
                   <input type="number" class="form-control" style="color: black;" placeholder="Digite o Número da ficha" name="nome" required=""><br>
                   <button class="btn btn-success" type="submit" name="imprimir">Imprimir Ficha</button>
               </form>
