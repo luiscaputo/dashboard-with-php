@@ -3,12 +3,10 @@
   require_once '../core/conection.php';
   if(isset($_POST['imprimir']))
   {
-    $cod = filter_input(INPUT_POST, 'ficha');
+    $cod = filter_input(INPUT_POST, 'nome');
     $getFicha = $pdo->prepare("SELECT * FROM fichas WHERE CodigoFicha = '$cod'");
-
-
-
-
+    $getFicha->execute();
+    
 
     // equipa da casa 
     // equipa visitante
